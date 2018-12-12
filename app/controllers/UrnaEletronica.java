@@ -27,6 +27,10 @@ public class UrnaEletronica extends Controller{
 	private static boolean votoNulo = false;
 	private static boolean votoBranco = false;
 	private static final Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
+	
+	public static void main() {
+		render();
+	}
 
 	public static void enviarVoto(String partido, String cargo, int numero, String nome){
 		Votacao votacao = new Votacao();

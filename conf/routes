@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-
+GET		/										UrnaEletronica.main
 POST	/insert									UrnaEletronica.enviarVoto
 GET 	/getTerminal							UrnaEletronica.getTerminal
 POST 	/api/setTerminal						UrnaEletronica.setTerminal
