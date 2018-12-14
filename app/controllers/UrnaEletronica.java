@@ -28,7 +28,7 @@ public class UrnaEletronica extends Controller{
 	private static boolean votoBranco = false;
 	private static final Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 	
-	public static void main() {
+	public static void index() {
 		render();
 	}
 
