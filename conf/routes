@@ -6,11 +6,11 @@
 GET		/										UrnaEletronica.index
 POST	/voto									UrnaEletronica.enviarVoto
 GET 	/get-terminal							UrnaEletronica.getTerminal
-POST 	/api/setTerminal						UrnaEletronica.setTerminal
-POST	/api/finalizarVotacao					UrnaEletronica.finalizarVotacao
-POST 	/api/cancelarVotacao					UrnaEletronica.cancelharVotacao
-GET		/api/emitirBoletim						UrnaEletronica.emitirBoletim
-POST	/api/enviarSecao						UrnaEletronica.enviarSecao
+POST 	/api/terminal							UrnaEletronica.setTerminal
+POST	/api/finaliza-votacao					UrnaEletronica.finalizarVotacao
+POST 	/api/cancela-votacao					UrnaEletronica.cancelharVotacao
+GET		/api/boletim						    UrnaEletronica.emitirBoletim
+POST	/api/secao      						UrnaEletronica.enviarSecao
 GET		/cancela-votacao						UrnaEletronica.getCancelarVotacao
 GET		/votacao-finalizada					    UrnaEletronica.getFinalizadaVotacao
 

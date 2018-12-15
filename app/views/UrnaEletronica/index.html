@@ -14,13 +14,13 @@
                 <h4 class="panel-title">
                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                         <i class="post">POST</i>
-                        /voto
+                        /api/terminal
                     </a>
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
                 <div class="panel-body">
-                      Obtém os votos concluídos. Parâmetros (partido, cargo, numero, nome)
+                      Obtém o status atual da Urna Eletrônica (liberada ou bloqueada)
                       
                 </div>
             </div>
@@ -30,14 +30,14 @@
             <div class="panel-heading" role="tab" id="headingTwo">
                 <h4 class="panel-title">
                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                        <i class="get">GET</i>
-                        /get-terminal
+                        <i class="post">POST</i>
+                        /api/finaliza-votacao
                     </a>
                 </h4>
             </div>
             <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
                 <div class="panel-body">
-                    Obtém o status da urna (bloqueada ou liberada)
+                    Retorna se a votação foi ou não finalizada
                 </div>
             </div>
         </div>
@@ -46,14 +46,14 @@
             <div class="panel-heading" role="tab" id="headingThree">
                 <h4 class="panel-title">
                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        <i class="get">GET</i>
-                        /cancela-votacao
+                        <i class="post">POST</i>
+                        /api/cancela-votacao
                     </a>
                 </h4>
             </div>
             <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
                 <div class="panel-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid.
+                    Ver o que faz
                 </div>
             </div>
         </div>
@@ -63,13 +63,29 @@
                 <h4 class="panel-title">
                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse4" aria-expanded="false" aria-controls="collapseThree">
                         <i class="get">GET</i>
-                        /votacao-finalizada
+                        /api/boletim
                     </a>
                 </h4>
             </div>
             <div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
                 <div class="panel-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid.
+                Obtém o boletim de Urna
+                </div>
+            </div>
+        </div>
+        
+                <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingThree">
+                <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse5" aria-expanded="false" aria-controls="collapseThree">
+                        <i class="post">POST</i>
+                        /api/secao
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse5" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                <div class="panel-body">
+                Obtém a Seção da Urna
                 </div>
             </div>
         </div>
