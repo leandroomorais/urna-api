@@ -32,24 +32,20 @@ public class UrnaEletronica extends Controller{
 		render();
 	}
 
-	public static void enviarVoto(String partido, String cargo, int numero, String nome){
+	public static void enviarVoto(int numCandidato, int idCargo, String ipUrna, String voto){
 		Votacao votacao = new Votacao();
-		if(partido.equals("Voto Branco") && cargo.equals("Voto Branco") && numero == -1 && nome.equals("Voto Branco")) {
+		if(voto.equals("Branco")) {
 			votacao.votoBranco = 1;
 			votoBranco = true;
 			votacao.save();
-		}else if(partido.equals("Voto Nulo") && cargo.equals("Voto Nulo") && numero == -2 && nome.equals("Voto Nulo")) {
+		}else if(voto.equals("Nulo")) {
 			votacao.votoNulo = 1;
 			votoNulo = true;
 			votacao.save();
 		}else {
-			Partido partido2 = new Partido();
-			partido2.sigla = partido;
-			partido2.save();
-			
-			Cargo cargo2 = new Cargo();
+			/*Cargo cargo2 = new Cargo();
 			cargo2.cargo = cargo;
-			cargo2.save();
+			cargo2.save();*/
 	 
 			votoValido = true;
 			votacao.votoValido = 1;
@@ -57,25 +53,23 @@ public class UrnaEletronica extends Controller{
 			votacao.save();
 			
 			Candidato candidato = new Candidato();
-			candidato.nome = nome;
-			candidato.cargo = cargo2;
-			candidato.numero = numero;
-			candidato.partido = partido2;
+			//candidato.nome = nome;
+			//candidato.cargo = cargo2;
+			candidato.numero = numCandidato;
 			List<Votacao> votosValidos = new ArrayList<>();
 			votosValidos.add(votacao);
 			candidato.votoValidos = votosValidos;
 			candidato.save();
 		}
-		if(votoValido) {
+		//if(votoValido) {
 			Map paramentros = new HashMap<>();
-			paramentros.put("partido", partido);
-			paramentros.put("cargo", cargo);
-			paramentros.put("numero", numero);
-			paramentros.put("nome", nome);
-			paramentros.put("voto", votacao.votoValido);
-			HttpResponse response = WS.url("http://localhost:9090/receberVotos").setParameters(paramentros).post();
+			paramentros.put("numCandidato", numCandidato);
+			paramentros.put("idCargo", idCargo);
+			paramentros.put("ipUrna", ipUrna);
+			HttpResponse response = WS.url("http://tse.vps.leandrorego.com/api/setVotoEleitor").setParameters(paramentros).post();
 			votoValido = false;
-		}else if(votoBranco) {
+		//}
+			/*else if(votoBranco) {
 			Map paramentros = new HashMap<>();
 			paramentros.put("partido", partido);
 			paramentros.put("cargo", cargo);
@@ -93,7 +87,7 @@ public class UrnaEletronica extends Controller{
 			paramentros.put("voto", -2);
 			HttpResponse response = WS.url("http://localhost:9090/receberVotos").setParameters(paramentros).post();
 			votoNulo = false;
-		}
+		}*/
 	}
 	
 	public static void emitirBoletim() {
