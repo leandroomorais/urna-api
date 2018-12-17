@@ -14,6 +14,7 @@ import models.CancelarVotacao;
 import models.Candidato;
 import models.Cargo;
 import models.FinalizarVotacao;
+import models.IpTerminal;
 import models.Partido;
 import models.Secao;
 import models.Status;
@@ -169,11 +170,35 @@ public class UrnaEletronica extends Controller{
 		}
 	}
 	
-	public static void enviarSecao(String secao) {
-		Secao secao2 = new Secao();
-		secao2.secao = secao;
-		secao2.save();
-		ok();
+	public static void enviarSecao(String secao, String ipTerminal) {
+		if(verificarSecao(secao, ipTerminal)) {
+			IpTerminal ipTerminal2 = new IpTerminal();
+			ipTerminal2.ip = ipTerminal;
+			ipTerminal2.save();
+			Secao secao2 = new Secao();
+			secao2.secao = secao;
+			secao2.terminal = ipTerminal2;
+			secao2.save();
+			ok();
+		}else {
+			notFound();
+		}
+	}
+	
+	public static void getSecao() {
+		long id = 1;
+		Secao secaos = Secao.findById(id);
+		String json = g.toJson(secaos);
+		renderJSON(json);
+	}
+	
+	private static boolean verificarSecao(String secao, String ipTerminal) {
+		Secao secao2 = Secao.find("secao =?", secao).first();
+		IpTerminal terminal = IpTerminal.find("ip=?", ipTerminal).first();
+		if(secao2 == null && terminal == null) {
+			return true;
+		}
+		return false;
 	}
 	
 	private static boolean isEmptyStatus() {
