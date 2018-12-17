@@ -2,6 +2,7 @@ package models;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 import com.google.gson.annotations.Expose;
@@ -13,7 +14,7 @@ public class Secao extends Model{
 	@Expose
 	public String secao;
 	@Expose
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name="id_terminal")
 	public IpTerminal terminal;
 	

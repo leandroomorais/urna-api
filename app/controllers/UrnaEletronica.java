@@ -92,7 +92,9 @@ public class UrnaEletronica extends Controller{
 	}
 	
 	public static void emitirBoletim() {
-		
+		List<Votacao> votacaos = Votacao.findAll();
+		String json = g.toJson(votacaos);
+		renderJSON(json);
 	}
 	
 	public static void setTerminal(String status) {

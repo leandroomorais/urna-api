@@ -8,7 +8,6 @@ import javax.persistence.OneToMany;
 
 import play.db.jpa.Model;
 
-@Entity
 public class Zona extends Model{
 	public String nome;
 	public int numZona;
