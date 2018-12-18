@@ -153,13 +153,11 @@ public class UrnaEletronica extends Controller{
 	
 	public static void setTerminal(String status) {
 		if(isEmptyStatus()) {
-			UrnaEletronica.status = true; 
 			Status status3 = new Status();
 			status3.status = status;
 			status3.save();
 			ok();
 		}else {
-			UrnaEletronica.status = true;
 			long id = 1;
 			Status status2 = Status.findById(id);
 			status2.status = status;
@@ -170,10 +168,7 @@ public class UrnaEletronica extends Controller{
 	
 	public static void finalizarVotacao(boolean finalizar) {
 		if(finalizar) {
-			if(status) {
-				setTerminal("erro");
-				status = false;
-			}
+			setTerminal("erro");
 			if(isEmptyFinalizadaVotacao()) {
 				FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
 				finalizarVotacao.status = finalizar;
@@ -204,10 +199,7 @@ public class UrnaEletronica extends Controller{
 	
 	public static void cancelharVotacao(boolean cancelharVotacao) {
 		if(cancelharVotacao) {
-			if(status) {
-				setTerminal("erro");
-				status = false;
-			}
+			setTerminal("erro");
 			if(isEmptyCancelarVotacao()) {
 				CancelarVotacao cancelarVotacao = new CancelarVotacao();
 				cancelarVotacao.status = cancelharVotacao;
