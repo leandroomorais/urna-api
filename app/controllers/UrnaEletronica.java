@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.crypto.CipherInputStream;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -52,15 +54,23 @@ public class UrnaEletronica extends Controller{
 			votacao.votoValido = 1;
 			
 			votacao.save();
-			
 			Candidato candidato = new Candidato();
-			//candidato.nome = nome;
-			//candidato.cargo = cargo2;
 			candidato.numero = numCandidato;
 			List<Votacao> votosValidos = new ArrayList<>();
 			votosValidos.add(votacao);
 			candidato.votoValidos = votosValidos;
-			candidato.save();
+			if(existCandidato(candidato)) {
+				candidato.id = getCandidato(candidato).id;
+				candidato.totalVotos = getTotalVotos(candidato).totalVotos + 1;
+				candidato.save();
+			}else {
+				candidato.totalVotos = 1;
+				candidato.save();
+			}
+			
+			
+			//candidato.nome = nome;
+			//candidato.cargo = cargo2;
 		}
 		//if(votoValido) {
 			Map paramentros = new HashMap<>();
@@ -91,8 +101,51 @@ public class UrnaEletronica extends Controller{
 		}*/
 	}
 	
+	
+	
+	private static boolean existCandidato(Candidato candidato) {
+		Candidato candidato2 = Candidato.find("numero=?", candidato.numero).first();
+		if(candidato2 != null) {
+			return true;
+		}
+		return false;
+	}
+	
+	private static Candidato getCandidato(Candidato candidato) {
+		Candidato candidato2 = Candidato.find("numero=?", candidato.numero).first();
+		if(candidato2 != null) {
+			return candidato2;
+		}
+		return null;
+	}
+	
+	private static Candidato getTotalVotos(Candidato candidato) {
+		Candidato candidato2 = Candidato.find("totalVotos > 0", candidato.totalVotos).first();
+		if(candidato2 != null) {
+			return candidato2;
+		}
+		return null;
+	}
+	
 	public static void emitirBoletim() {
 		List<Votacao> votacaos = Votacao.findAll();
+		for(Votacao votacao : votacaos) {
+			if(votacao.votoValido == 1) {
+				votacao.id = (long) 1;
+				votacao.contValidos = 1;
+				votacao.save();
+			}
+			if(votacao.votoBranco == 1) {
+				votacao.id = (long) 1;
+				votacao.contBranco = 1;
+				votacao.save();
+			}
+			if(votacao.votoNulo == 1) {
+				votacao.id = (long) 1;
+				votacao.contNulo = 1;
+				votacao.save();
+			}
+		}
 		String json = g.toJson(votacaos);
 		renderJSON(json);
 	}
