@@ -168,7 +168,7 @@ public class UrnaEletronica extends Controller{
 	
 	public static void finalizarVotacao(boolean finalizar) {
 		if(finalizar) {
-			setTerminal("erro");
+			//setTerminal("erro");
 			if(isEmptyFinalizadaVotacao()) {
 				FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
 				finalizarVotacao.status = finalizar;
@@ -199,7 +199,7 @@ public class UrnaEletronica extends Controller{
 	
 	public static void cancelharVotacao(boolean cancelharVotacao) {
 		if(cancelharVotacao) {
-			setTerminal("erro");
+			//setTerminal("erro");
 			if(isEmptyCancelarVotacao()) {
 				CancelarVotacao cancelarVotacao = new CancelarVotacao();
 				cancelarVotacao.status = cancelharVotacao;
