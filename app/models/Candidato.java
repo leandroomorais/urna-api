@@ -3,6 +3,7 @@
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -20,8 +21,9 @@ public class Candidato extends  Model{
 	public String nome;
 	@Expose
 	public int numero;
+	
 	@Expose
-	public int totalVotos = 0;
+	public int totalVotos;
 	@ManyToMany
 	@JoinTable(name="votos_ampurados")
 	public List<Votacao> votoValidos;

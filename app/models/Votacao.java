@@ -11,9 +11,12 @@ import play.db.jpa.Model;
 
 @Entity
 public class Votacao extends Model{
-    public int votoBranco;
-    public int votoNulo;
-    public int votoValido;
+	@Expose
+    public long votoBranco;
+	@Expose
+	public long votoNulo;
+	@Expose
+	public long votoValido;
 
     @Expose
 	public long contValidos = 0;

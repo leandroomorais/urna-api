@@ -41,9 +41,11 @@ public class UrnaEletronica extends Controller{
 		if(voto.equals("Branco")) {
 			votacao.votoBranco = 1;
 			votoBranco = true;
+			votacao.contBranco = 1;
 			votacao.save();
 		}else if(voto.equals("Nulo")) {
 			votacao.votoNulo = 1;
+			votacao.contNulo = 1;
 			votoNulo = true;
 			votacao.save();
 		}else {
@@ -53,32 +55,34 @@ public class UrnaEletronica extends Controller{
 	 
 			votoValido = true;
 			votacao.votoValido = 1;
-			
+			votacao.contValidos = 1;
 			votacao.save();
 			Candidato candidato = new Candidato();
+			candidato.nome = "Teste";
 			candidato.numero = numCandidato;
-			List<Votacao> votosValidos = new ArrayList<>();
-			votosValidos.add(votacao);
-			candidato.votoValidos = votosValidos;
 			if(existCandidato(candidato)) {
-				candidato.id = getCandidato(candidato).id;
+				candidato = Candidato.findById(getCandidato(candidato).id);
+				List<Votacao> votosValidos = new ArrayList<>();
+				votosValidos.add(votacao);
+				candidato.votoValidos = votosValidos;
 				candidato.totalVotos = getTotalVotos(candidato).totalVotos + 1;
-				candidato.save();
 			}else {
 				candidato.totalVotos = 1;
-				candidato.save();
+				List<Votacao> votosValidos = new ArrayList<>();
+				votosValidos.add(votacao);
+				candidato.votoValidos = votosValidos;
 			}
 			
-			
+			candidato.save();
 			//candidato.nome = nome;
 			//candidato.cargo = cargo2;
 		}
 		//if(votoValido) {
-			Map paramentros = new HashMap<>();
+			/*Map paramentros = new HashMap<>();
 			paramentros.put("numCandidato", numCandidato);
 			paramentros.put("idCargo", idCargo);
 			paramentros.put("ipUrna", ipUrna);
-			HttpResponse response = WS.url("http://tse.vps.leandrorego.com/api/setVotoEleitor").setParameters(paramentros).post();
+			HttpResponse response = WS.url("http://tse.vps.leandrorego.com/api/setVotoEleitor").setParameters(paramentros).post();*/
 			votoValido = false;
 		//}
 			/*else if(votoBranco) {
@@ -121,7 +125,7 @@ public class UrnaEletronica extends Controller{
 	}
 	
 	private static Candidato getTotalVotos(Candidato candidato) {
-		Candidato candidato2 = Candidato.find("totalVotos > 0", candidato.totalVotos).first();
+		Candidato candidato2 = Candidato.find("numero=?", candidato.numero).first();
 		if(candidato2 != null) {
 			return candidato2;
 		}
@@ -130,24 +134,24 @@ public class UrnaEletronica extends Controller{
 	
 	public static void emitirBoletim() {
 		List<Votacao> votacaos = Votacao.findAll();
+		long countValidos = Votacao.count("votoValido =?", (long)1);
+		long countBranco = Votacao.count("votoBranco =?", (long)1);
+		long countNulo = Votacao.count("votoNulo =?", (long)1);
+		long contValido = Votacao.count("contValidos =?", (long)1);
+		long contNulo = Votacao.count("contNulo =?", (long)1);
+		long contBranco = Votacao.count("contBranco =?", (long)1);
+		List<Votacao> list = new ArrayList<>();
 		for(Votacao votacao : votacaos) {
-			if(votacao.votoValido == 1) {
-				votacao.id = (long) 1;
-				votacao.contValidos = 1;
-				votacao.save();
-			}
-			if(votacao.votoBranco == 1) {
-				votacao.id = (long) 1;
-				votacao.contBranco = 1;
-				votacao.save();
-			}
-			if(votacao.votoNulo == 1) {
-				votacao.id = (long) 1;
-				votacao.contNulo = 1;
-				votacao.save();
+			if((!votacao.candidatos.isEmpty())) {
+				votacao.contBranco = contBranco;
+				votacao.contNulo = contNulo;
+				votacao.contValidos = contValido;
+				votacao.votoValido = countValidos;
+				votacao.votoBranco = countBranco;
+				list.add(votacao);
 			}
 		}
-		String json = g.toJson(votacaos);
+		String json = g.toJson(list);
 		renderJSON(json);
 	}
 	
