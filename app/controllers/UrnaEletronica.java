@@ -158,7 +158,7 @@ public class UrnaEletronica extends Controller{
 	}
 	
 	public static void setTerminal(String status) {
-		if(status.equals("true") || status.equals("false") || status.equals("erro")) {
+		if(status.equals("liberada") || status.equals("bloqueada") || status.equals("erro")) {
 			if(isEmptyStatus()) {
 				Status status3 = new Status();
 				status3.status = status;
