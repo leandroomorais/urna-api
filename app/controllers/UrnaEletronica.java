@@ -21,15 +21,17 @@ import models.Partido;
 import models.Secao;
 import models.Status;
 import models.Votacao;
+import oauth.signpost.http.HttpRequest;
 import play.libs.WS;
 import play.libs.WS.HttpResponse;
 import play.mvc.Controller;
+import play.mvc.Http;
 
 public class UrnaEletronica extends Controller{
 	private static boolean votoValido = false;
 	private static boolean votoNulo = false;
 	private static boolean votoBranco = false;
-	private static boolean status = false;
+	private static boolean statusBool = false;
 	private static final Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 	
 	public static void index() {
@@ -156,23 +158,29 @@ public class UrnaEletronica extends Controller{
 	}
 	
 	public static void setTerminal(String status) {
-		if(isEmptyStatus()) {
-			Status status3 = new Status();
-			status3.status = status;
-			status3.save();
-			ok();
+		if(status.equals("true") || status.equals("false") || status.equals("erro")) {
+			if(isEmptyStatus()) {
+				Status status3 = new Status();
+				status3.status = status;
+				statusBool = true;
+				status3.save();
+				ok();
+			}else {
+				long id = 1;
+				statusBool = true;
+				Status status2 = Status.findById(id);
+				status2.status = status;
+				status2.save();
+				ok();
+			}
 		}else {
-			long id = 1;
-			Status status2 = Status.findById(id);
-			status2.status = status;
-			status2.save();
-			ok();
+			notFound();
 		}
 	}
 	
 	public static void cancelharVotacao(boolean cancelharVotacao) {
 		if(cancelharVotacao) {
-			//setTerminal("erro"); <- serviço que o terminal consume 
+			setTerminal("erro");
 			if(isEmptyCancelarVotacao()) {
 				CancelarVotacao cancelarVotacao = new CancelarVotacao();
 				cancelarVotacao.status = cancelharVotacao;
@@ -180,12 +188,13 @@ public class UrnaEletronica extends Controller{
 				ok();
 			}else {
 				long id = 1;
-				CancelarVotacao cancelarVotacao = CancelarVotacao.findById(id);
-				cancelarVotacao.status = cancelharVotacao;
-				cancelarVotacao.save();
+				CancelarVotacao cancelarVotacao2 = CancelarVotacao.findById(id);
+				cancelarVotacao2.status = cancelharVotacao;
+				cancelarVotacao2.save();
 				ok();
 			}
 		}else {
+			setTerminal("bloqueda");
 			if(isEmptyCancelarVotacao()) {
 				CancelarVotacao cancelarVotacao = new CancelarVotacao();
 				cancelarVotacao.status = cancelharVotacao;
@@ -193,9 +202,9 @@ public class UrnaEletronica extends Controller{
 				ok();
 			}else {
 				long id = 1;
-				CancelarVotacao cancelarVotacao = CancelarVotacao.findById(id);
-				cancelarVotacao.status = cancelharVotacao;
-				cancelarVotacao.save();
+				CancelarVotacao cancelarVotacao2 = CancelarVotacao.findById(id);
+				cancelarVotacao2.status = cancelharVotacao;
+				cancelarVotacao2.save();
 				ok();
 			}
 		}
@@ -203,7 +212,7 @@ public class UrnaEletronica extends Controller{
 	
 	public static void finalizarVotacao(boolean finalizar) {
 		if(finalizar) {
-			//setTerminal("erro");
+			setTerminal("erro");
 			if(isEmptyFinalizadaVotacao()) {
 				FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
 				finalizarVotacao.status = finalizar;
@@ -217,6 +226,7 @@ public class UrnaEletronica extends Controller{
 				ok();
 			}
 		}else {
+			setTerminal("bloqueda");
 			if(isEmptyFinalizadaVotacao()) {
 				FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
 				finalizarVotacao.status = finalizar;
