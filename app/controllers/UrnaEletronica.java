@@ -26,6 +26,8 @@ import play.libs.WS;
 import play.libs.WS.HttpResponse;
 import play.mvc.Controller;
 import play.mvc.Http;
+import play.mvc.Router;
+import play.mvc.Router.Route;
 
 public class UrnaEletronica extends Controller{
 	private static boolean votoValido = false;
@@ -158,7 +160,7 @@ public class UrnaEletronica extends Controller{
 	}
 	
 	public static void setTerminal(String status) {
-		if(status.equals("liberada") || status.equals("bloqueada") || status.equals("erro")) {
+		if(status.equals("liberada") || status.equals("bloqueada")) {
 			if(isEmptyStatus()) {
 				Status status3 = new Status();
 				status3.status = status;
@@ -180,21 +182,27 @@ public class UrnaEletronica extends Controller{
 	
 	public static void cancelharVotacao(boolean cancelharVotacao) {
 		if(cancelharVotacao) {
-			setTerminal("erro");
+			long id = 1;
+			Status status = Status.findById(id);
+			status.status = "cancelou";
+			status.save();
 			if(isEmptyCancelarVotacao()) {
 				CancelarVotacao cancelarVotacao = new CancelarVotacao();
 				cancelarVotacao.status = cancelharVotacao;
 				cancelarVotacao.save();
 				ok();
 			}else {
-				long id = 1;
-				CancelarVotacao cancelarVotacao2 = CancelarVotacao.findById(id);
+				long id2 = 1;
+				CancelarVotacao cancelarVotacao2 = CancelarVotacao.findById(id2);
 				cancelarVotacao2.status = cancelharVotacao;
 				cancelarVotacao2.save();
 				ok();
 			}
 		}else {
-			setTerminal("bloqueda");
+			long id2 = 1;
+			Status status = Status.findById(id2);
+			status.status = "bloqueada";
+			status.save();
 			if(isEmptyCancelarVotacao()) {
 				CancelarVotacao cancelarVotacao = new CancelarVotacao();
 				cancelarVotacao.status = cancelharVotacao;
@@ -212,29 +220,35 @@ public class UrnaEletronica extends Controller{
 	
 	public static void finalizarVotacao(boolean finalizar) {
 		if(finalizar) {
-			setTerminal("erro");
+			long id = 1;
+			Status status = Status.findById(id);
+			status.status = "finalizou";
+			status.save();
 			if(isEmptyFinalizadaVotacao()) {
 				FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
 				finalizarVotacao.status = finalizar;
 				finalizarVotacao.save();
 				ok();
 			}else {
-				long id = 1;
-				FinalizarVotacao finalizarVotacao = FinalizarVotacao.findById(id);
+				long id2 = 1;
+				FinalizarVotacao finalizarVotacao = FinalizarVotacao.findById(id2);
 				finalizarVotacao.status = finalizar;
 				finalizarVotacao.save();
 				ok();
 			}
 		}else {
-			setTerminal("bloqueda");
+			long id = 1;
+			Status status = Status.findById(id);
+			status.status = "bloqueada";
+			status.save();
 			if(isEmptyFinalizadaVotacao()) {
 				FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
 				finalizarVotacao.status = finalizar;
 				finalizarVotacao.save();
 				ok();
 			}else {
-				long id = 1;
-				FinalizarVotacao finalizarVotacao = FinalizarVotacao.findById(id);
+				long id2 = 1;
+				FinalizarVotacao finalizarVotacao = FinalizarVotacao.findById(id2);
 				finalizarVotacao.status = finalizar;
 				finalizarVotacao.save();
 				ok();

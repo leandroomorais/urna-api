@@ -1,7 +1,7 @@
 function servicoTerminal(){
 	var result = {status: $("#status").val()};
 	var result1 = {};
-	if($("#status").val() == "liberada" || $("#status").val() == "bloqueda"){
+	if($("#status").val() == "liberada" || $("#status").val() == "bloqueada"){
 		$('#resultado').html(JSON.stringify(result));	
 	}else{
 		$('#resultado').html(JSON.stringify(result1));	
