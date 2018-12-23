@@ -2,6 +2,7 @@ package controllers;
 
  
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import models.Candidato;
 import models.Cargo;
 import models.FinalizarVotacao;
 import models.IpTerminal;
+import models.IpUrna;
 import models.Partido;
 import models.Secao;
 import models.Status;
@@ -259,24 +261,35 @@ public class UrnaEletronica extends Controller{
 	
 	
 	public static void enviarSecao(String secao, String ipTerminal) {
-		if(verificarSecao(secao, ipTerminal)) {
-			IpTerminal ipTerminal2 = new IpTerminal();
-			ipTerminal2.ip = ipTerminal;
-			ipTerminal2.save();
-			Secao secao2 = new Secao();
-			secao2.secao = secao;
-			secao2.terminal = ipTerminal2;
-			secao2.save();
-			ok();
-		}else {
-			notFound();
+		try {
+			if(verificarSecao(secao, ipTerminal)) {
+				String ipUrna = InetAddress.getLocalHost().getHostAddress();
+				IpTerminal ipTerminal2 = new IpTerminal();
+				IpUrna ipUrna2 = new IpUrna();
+				ipUrna2.ipUrna = ipUrna;
+				ipUrna2.save();
+				ipTerminal2.ip = ipTerminal;
+				ipTerminal2.save();
+				Secao secao2 = new Secao();
+				secao2.secao = secao;
+				secao2.terminal = ipTerminal2;
+				secao2.ipUrna = ipUrna2;
+				secao2.save();
+				ok();
+			}else {
+				notFound();
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 	}
 	
-	public static void getSecao() {
-		long id = 1;
-		Secao secaos = Secao.findById(id);
-		String json = g.toJson(secaos);
+	public static void getSecao(String ipUrna) {
+		IpUrna ipUrna2 = IpUrna.find("ipUrna =?",ipUrna).first();
+		if(ipUrna2 == null) {
+			notFound();
+		}
+		String json = g.toJson(ipUrna2);
 		renderJSON(json);
 	}
 	

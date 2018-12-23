@@ -17,5 +17,8 @@ public class Secao extends Model{
 	@ManyToOne
 	@JoinColumn(name="id_terminal")
 	public IpTerminal terminal;
+	@ManyToOne
+	@JoinColumn(name="id_ip_urna")
+	public IpUrna ipUrna;
 	
 }

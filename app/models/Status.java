@@ -11,4 +11,5 @@ public class Status extends Model{
 	@Expose
 	public String status;
 	
+	
 }

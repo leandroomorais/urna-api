@@ -13,7 +13,7 @@ GET		/api/boletim						    UrnaEletronica.emitirBoletim
 POST	/api/secao      						UrnaEletronica.enviarSecao
 GET		/cancela-votacao						UrnaEletronica.getCancelarVotacao
 GET		/votacao-finalizada					    UrnaEletronica.getFinalizadaVotacao
-GET		/getSecao								UrnaEletronica.getSecao
+GET		/getSecao/{ipUrna}								UrnaEletronica.getSecao
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
