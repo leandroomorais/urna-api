@@ -32,17 +32,17 @@ import play.mvc.Router;
 import play.mvc.Router.Route;
 
 public class UrnaEletronica extends Controller{
+	
 	private static boolean votoValido = false;
 	private static boolean votoNulo = false;
 	private static boolean votoBranco = false;
-	private static boolean statusBool = false;
 	private static final Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 	
 	public static void index() {
 		render();
 	}
 
-	public static void enviarVoto(int numCandidato, int idCargo, String ipUrna, String voto){
+	public static void enviarVoto(int numCandidato, int idCargo, String nome, String ipUrna, String voto){
 		Votacao votacao = new Votacao();
 		if(voto.equals("Branco")) {
 			votacao.votoBranco = 1;
@@ -55,16 +55,12 @@ public class UrnaEletronica extends Controller{
 			votoNulo = true;
 			votacao.save();
 		}else {
-			/*Cargo cargo2 = new Cargo();
-			cargo2.cargo = cargo;
-			cargo2.save();*/
-	 
 			votoValido = true;
 			votacao.votoValido = 1;
 			votacao.contValidos = 1;
 			votacao.save();
 			Candidato candidato = new Candidato();
-			candidato.nome = "Teste";
+			candidato.nome = nome;
 			candidato.numero = numCandidato;
 			if(existCandidato(candidato)) {
 				candidato = Candidato.findById(getCandidato(candidato).id);
@@ -80,42 +76,35 @@ public class UrnaEletronica extends Controller{
 			}
 			
 			candidato.save();
-			//candidato.nome = nome;
-			//candidato.cargo = cargo2;
 		}
-		//if(votoValido) {
-			/*Map paramentros = new HashMap<>();
+		if(votoValido) {
+			Map paramentros = new HashMap<>();
 			paramentros.put("numCandidato", numCandidato);
 			paramentros.put("idCargo", idCargo);
 			paramentros.put("ipUrna", ipUrna);
-			HttpResponse response = WS.url("http://tse.vps.leandrorego.com/api/setVotoEleitor").setParameters(paramentros).post();*/
+			HttpResponse response = WS.url("http://tse.vps.leandrorego.com/api/setVotoEleitor").setParameters(paramentros).post();
 			votoValido = false;
-		//}
-			/*else if(votoBranco) {
+		}else if(votoBranco) {
 			Map paramentros = new HashMap<>();
-			paramentros.put("partido", partido);
-			paramentros.put("cargo", cargo);
-			paramentros.put("numero", numero);
-			paramentros.put("nome", nome);
-			paramentros.put("voto", -1);
-			HttpResponse response = WS.url("http://localhost:9090/receberVotos").setParameters(paramentros).post();
+			paramentros.put("numCandidato", numCandidato);
+			paramentros.put("idCargo", idCargo);
+			paramentros.put("ipUrna", ipUrna);
+			HttpResponse response = WS.url("http://tse.vps.leandrorego.com/api/setVotoEleitor").setParameters(paramentros).post();
 			votoBranco = false;
 		}else if(votoNulo) {
 			Map paramentros = new HashMap<>();
-			paramentros.put("partido", partido);
-			paramentros.put("cargo", cargo);
-			paramentros.put("numero", numero);
-			paramentros.put("nome", nome);
-			paramentros.put("voto", -2);
-			HttpResponse response = WS.url("http://localhost:9090/receberVotos").setParameters(paramentros).post();
+			paramentros.put("numCandidato", numCandidato);
+			paramentros.put("idCargo", idCargo);
+			paramentros.put("ipUrna", ipUrna);
+			HttpResponse response = WS.url("http://tse.vps.leandrorego.com/api/setVotoEleitor").setParameters(paramentros).post();
 			votoNulo = false;
-		}*/
+		}
 	}
 	
 	
 	
 	private static boolean existCandidato(Candidato candidato) {
-		Candidato candidato2 = Candidato.find("numero=?", candidato.numero).first();
+		Candidato candidato2 = Candidato.find("numero=? and nome=?", candidato.numero, candidato.nome).first();
 		if(candidato2 != null) {
 			return true;
 		}
@@ -123,7 +112,7 @@ public class UrnaEletronica extends Controller{
 	}
 	
 	private static Candidato getCandidato(Candidato candidato) {
-		Candidato candidato2 = Candidato.find("numero=?", candidato.numero).first();
+		Candidato candidato2 = Candidato.find("numero=? and nome=?", candidato.numero, candidato.nome).first();
 		if(candidato2 != null) {
 			return candidato2;
 		}
@@ -131,7 +120,7 @@ public class UrnaEletronica extends Controller{
 	}
 	
 	private static Candidato getTotalVotos(Candidato candidato) {
-		Candidato candidato2 = Candidato.find("numero=?", candidato.numero).first();
+		Candidato candidato2 = Candidato.find("numero=? and nome=?", candidato.numero, candidato.nome).first();
 		if(candidato2 != null) {
 			return candidato2;
 		}
@@ -166,12 +155,10 @@ public class UrnaEletronica extends Controller{
 			if(isEmptyStatus()) {
 				Status status3 = new Status();
 				status3.status = status;
-				statusBool = true;
 				status3.save();
 				ok();
 			}else {
 				long id = 1;
-				statusBool = true;
 				Status status2 = Status.findById(id);
 				status2.status = status;
 				status2.save();
@@ -260,9 +247,9 @@ public class UrnaEletronica extends Controller{
 	
 	
 	
-	public static void enviarSecao(String secao, String ipTerminal) {
+	public static void enviarSecao(String idSecao, String ipTerminal) {
 		try {
-			if(verificarSecao(secao, ipTerminal)) {
+			if(verificarSecao(idSecao, ipTerminal)) {
 				String ipUrna = InetAddress.getLocalHost().getHostAddress();
 				IpTerminal ipTerminal2 = new IpTerminal();
 				IpUrna ipUrna2 = new IpUrna();
@@ -271,7 +258,7 @@ public class UrnaEletronica extends Controller{
 				ipTerminal2.ip = ipTerminal;
 				ipTerminal2.save();
 				Secao secao2 = new Secao();
-				secao2.secao = secao;
+				secao2.secao = idSecao;
 				secao2.terminal = ipTerminal2;
 				secao2.ipUrna = ipUrna2;
 				secao2.save();
@@ -293,8 +280,8 @@ public class UrnaEletronica extends Controller{
 		renderJSON(json);
 	}
 	
-	private static boolean verificarSecao(String secao, String ipTerminal) {
-		Secao secao2 = Secao.find("secao =?", secao).first();
+	private static boolean verificarSecao(String idSecao, String ipTerminal) {
+		Secao secao2 = Secao.find("secao =?", idSecao).first();
 		IpTerminal terminal = IpTerminal.find("ip=?", ipTerminal).first();
 		if(secao2 == null && terminal == null) {
 			return true;
