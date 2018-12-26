@@ -47,17 +47,14 @@ public class UrnaEletronica extends Controller{
 		if(voto.equals("Branco")) {
 			votacao.votoBranco = 1;
 			votoBranco = true;
-			votacao.contBranco = 1;
 			votacao.save();
 		}else if(voto.equals("Nulo")) {
 			votacao.votoNulo = 1;
-			votacao.contNulo = 1;
 			votoNulo = true;
 			votacao.save();
 		}else {
 			votoValido = true;
 			votacao.votoValido = 1;
-			votacao.contValidos = 1;
 			votacao.save();
 			Candidato candidato = new Candidato();
 			candidato.nome = nome;
@@ -132,17 +129,12 @@ public class UrnaEletronica extends Controller{
 		long countValidos = Votacao.count("votoValido =?", (long)1);
 		long countBranco = Votacao.count("votoBranco =?", (long)1);
 		long countNulo = Votacao.count("votoNulo =?", (long)1);
-		long contValido = Votacao.count("contValidos =?", (long)1);
-		long contNulo = Votacao.count("contNulo =?", (long)1);
-		long contBranco = Votacao.count("contBranco =?", (long)1);
 		List<Votacao> list = new ArrayList<>();
 		for(Votacao votacao : votacaos) {
 			if((!votacao.candidatos.isEmpty())) {
-				votacao.contBranco = contBranco;
-				votacao.contNulo = contNulo;
-				votacao.contValidos = contValido;
 				votacao.votoValido = countValidos;
 				votacao.votoBranco = countBranco;
+				votacao.votoNulo = countNulo;
 				list.add(votacao);
 			}
 		}
@@ -274,7 +266,10 @@ public class UrnaEletronica extends Controller{
 	public static void getSecao(String ipUrna) {
 		IpUrna ipUrna2 = IpUrna.find("ipUrna =?",ipUrna).first();
 		if(ipUrna2 == null) {
-			notFound();
+			Status notFound = new Status();
+			notFound.status = "Ip não vingulado";
+			String json = g.toJson(notFound);
+			renderJSON(json);
 		}
 		String json = g.toJson(ipUrna2);
 		renderJSON(json);
