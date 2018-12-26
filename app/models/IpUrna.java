@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import com.google.gson.annotations.Expose;
 
@@ -14,4 +15,7 @@ public class IpUrna extends Model{
 	@Expose
 	@OneToMany(mappedBy="ipUrna")
 	public List<Secao> secao;
+	
+	@OneToOne(mappedBy="ipUrnaVotacao")
+	public UrnaTempoVotacao urnaTempoVotacao;
 }
