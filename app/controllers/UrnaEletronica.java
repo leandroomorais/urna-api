@@ -2,42 +2,35 @@ package controllers;
 
  
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.crypto.CipherInputStream;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import models.CancelarVotacao;
 import models.Candidato;
-import models.Cargo;
 import models.FinalizarVotacao;
 import models.IpTerminal;
 import models.IpUrna;
-import models.Partido;
 import models.Secao;
 import models.Status;
 import models.UrnaTempoVotacao;
 import models.Votacao;
-import oauth.signpost.http.HttpRequest;
 import play.libs.WS;
 import play.libs.WS.HttpResponse;
 import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Router;
-import play.mvc.Router.Route;
 
 public class UrnaEletronica extends Controller{
 	
 	private static boolean votoValido = false;
 	private static boolean votoNulo = false;
 	private static boolean votoBranco = false;
+	private static String ipUrnaAtual = "";
+	private static boolean recebeuIp = false;
 	private static final Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 	
 	public static void index() {
@@ -219,11 +212,9 @@ public class UrnaEletronica extends Controller{
 				finalizarVotacao.save();
 				ok();
 			}
-
 			UrnaTempoVotacao urna = new UrnaTempoVotacao();
 			urna.fim = new Date();
 			urna.save();
-			
 		}else {
 			long id = 1;
 			Status status = Status.findById(id);
@@ -244,25 +235,54 @@ public class UrnaEletronica extends Controller{
 		}
 	}
 	
+	private static boolean existIpUrna(String ipUrna) {
+		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
+		if(ipUrna2 == null) { 
+			return true;
+		}
+		return false;
+	}
+	
+	public static void receberIpUrna(String ipUrna) {
+		if(existIpUrna(ipUrna)) {
+			System.out.println("Entrou na condicao");
+			ipUrnaAtual = ipUrna;
+			recebeuIp = true;
+			ok();
+		}else {
+			System.out.println("Entrou no notFround");
+			notFound();
+		}
+	}
+	
 	
 	
 	public static void enviarSecao(String idSecao, String ipTerminal) {
 		try {
-			if(verificarSecao(idSecao, ipTerminal)) {
-				String ipUrna = InetAddress.getLocalHost().getHostAddress();
-				IpTerminal ipTerminal2 = new IpTerminal();
-				IpUrna ipUrna2 = new IpUrna();
-				ipUrna2.ipUrna = ipUrna;
-				ipUrna2.save();
-				ipTerminal2.ip = ipTerminal;
-				ipTerminal2.save();
-				Secao secao2 = new Secao();
-				secao2.secao = idSecao;
-				secao2.terminal = ipTerminal2;
-				secao2.ipUrna = ipUrna2;
-				secao2.save();
-				ok();
+			System.out.println("Entrou na funcao enviarSecao");
+			if(recebeuIp) {
+				System.out.println("Recebeu ip");
+				if(verificarSecao(idSecao, ipTerminal)) {
+					recebeuIp = false;
+					IpTerminal ipTerminal2 = new IpTerminal();
+					IpUrna ipUrna2 = new IpUrna();
+					ipUrna2.ipUrna = ipUrnaAtual;
+					ipUrna2.save();
+					ipTerminal2.ip = ipTerminal;
+					ipTerminal2.save();
+					ipUrnaAtual = "";
+					Secao secao2 = new Secao();
+					secao2.secao = idSecao;
+					secao2.terminal = ipTerminal2;
+					secao2.ipUrna = ipUrna2;
+					secao2.save();
+					ok();
+				}else {
+					System.out.println("Secao já está vingulada e o ipterminal");
+					notFound();
+				}
 			}else {
+				System.out.println("A Urna não enviou o ip");
 				notFound();
 			}
 		} catch (Exception e) {
@@ -274,10 +294,11 @@ public class UrnaEletronica extends Controller{
 		IpUrna ipUrna2 = IpUrna.find("ipUrna =?",ipUrna).first();
 		if(ipUrna2 == null) {
 			Status notFound = new Status();
-			notFound.status = "Ip não vingulado";
+			notFound.status = "Ip da urna não está vingulado a seção";
 			String json = g.toJson(notFound);
 			renderJSON(json);
 		}
+		System.out.println(ipUrna2.ipUrna);
 		String json = g.toJson(ipUrna2);
 		renderJSON(json);
 	}
