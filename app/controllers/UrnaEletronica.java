@@ -4,6 +4,7 @@ package controllers;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import models.IpUrna;
 import models.Partido;
 import models.Secao;
 import models.Status;
+import models.UrnaTempoVotacao;
 import models.Votacao;
 import oauth.signpost.http.HttpRequest;
 import play.libs.WS;
@@ -217,6 +219,11 @@ public class UrnaEletronica extends Controller{
 				finalizarVotacao.save();
 				ok();
 			}
+
+			UrnaTempoVotacao urna = new UrnaTempoVotacao();
+			urna.fim = new Date();
+			urna.save();
+			
 		}else {
 			long id = 1;
 			Status status = Status.findById(id);
