@@ -18,6 +18,7 @@ import models.IpTerminal;
 import models.IpUrna;
 import models.Secao;
 import models.Status;
+import models.TempoVoto;
 import models.UrnaTempoVotacao;
 import models.Votacao;
 import play.libs.WS;
@@ -31,6 +32,9 @@ public class UrnaEletronica extends Controller{
 	private static boolean votoBranco = false;
 	private static String ipUrnaAtual = "";
 	private static boolean recebeuIp = false;
+	private static long idTempoVoto = 0;
+	private static long idTempoVotoGeral = 0;
+	//private static UrnaTempoVotacao urnaTempoVotacao = new UrnaTempoVotacao();
 	private static final Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 	
 	public static void index() {
@@ -139,6 +143,28 @@ public class UrnaEletronica extends Controller{
 	
 	public static void setTerminal(String status) {
 		if(status.equals("liberada") || status.equals("bloqueada")) {
+			if(status.equals("liberada")){
+				System.out.println("ok");
+				TempoVoto tempovoto = new TempoVoto();
+				tempovoto.inicioVoto = new Date();
+				System.out.println("ip atual q nao da certo3"+ipUrnaAtual);
+				System.out.println("ipppppp "+session.get("ipUrnaAtual"));
+				IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrnaAtual).first();
+				long u =  ipurna.id;
+				UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
+				if(urna != null){
+					System.out.println("é nullo");
+				}
+				tempovoto.tempoVotacaoGeral = urna;
+				tempovoto.save();
+				idTempoVoto = tempovoto.id;
+			}
+			if(status.equals("bloqueada")){
+				System.out.println("ok");
+				TempoVoto tempovoto = TempoVoto.findById(idTempoVoto);
+				tempovoto.fimVoto = new Date();
+				tempovoto.save();
+			}
 			if(isEmptyStatus()) {
 				Status status3 = new Status();
 				status3.status = status;
@@ -212,9 +238,12 @@ public class UrnaEletronica extends Controller{
 				finalizarVotacao.save();
 				ok();
 			}
-			UrnaTempoVotacao urna = new UrnaTempoVotacao();
+			
+			//IpUrna ipurna = IpUrna.find("ipUrna", ipUrnaAtual).first();
+			UrnaTempoVotacao urna = UrnaTempoVotacao.findById(idTempoVotoGeral);
 			urna.fim = new Date();
 			urna.save();
+			//urnaTempoVotacao = new UrnaTempoVotacao();
 		}else {
 			long id = 1;
 			Status status = Status.findById(id);
@@ -247,12 +276,14 @@ public class UrnaEletronica extends Controller{
 		if(existIpUrna(ipUrna)) {
 			System.out.println("Entrou na condicao");
 			ipUrnaAtual = ipUrna;
+			
 			recebeuIp = true;
 			ok();
 		}else {
 			System.out.println("Entrou no notFround");
 			notFound();
 		}
+		
 	}
 	
 	
@@ -265,17 +296,29 @@ public class UrnaEletronica extends Controller{
 				if(verificarSecao(idSecao, ipTerminal)) {
 					recebeuIp = false;
 					IpTerminal ipTerminal2 = new IpTerminal();
+					
 					IpUrna ipUrna2 = new IpUrna();
+					System.out.println("ip atual q nao da certo"+ipUrnaAtual);
 					ipUrna2.ipUrna = ipUrnaAtual;
+					System.out.println("ip atual q nao da certo2"+ipUrnaAtual);
 					ipUrna2.save();
+					
 					ipTerminal2.ip = ipTerminal;
 					ipTerminal2.save();
-					ipUrnaAtual = "";
+					//ipUrnaAtual = "";
 					Secao secao2 = new Secao();
 					secao2.secao = idSecao;
 					secao2.terminal = ipTerminal2;
 					secao2.ipUrna = ipUrna2;
 					secao2.save();
+					
+					
+					UrnaTempoVotacao urnaTempoVotacao = new UrnaTempoVotacao();
+					urnaTempoVotacao.inicio = new Date();
+					urnaTempoVotacao.ipUrnaVotacao = ipUrna2;
+					urnaTempoVotacao.save();
+					idTempoVotoGeral = urnaTempoVotacao.id;
+					//urnaTempoVotacao = new UrnaTempoVotacao();
 					ok();
 				}else {
 					System.out.println("Secao já está vingulada e o ipterminal");
@@ -294,11 +337,12 @@ public class UrnaEletronica extends Controller{
 		IpUrna ipUrna2 = IpUrna.find("ipUrna =?",ipUrna).first();
 		if(ipUrna2 == null) {
 			Status notFound = new Status();
-			notFound.status = "Ip da urna não está vingulado a seção";
+			notFound.status = "Ip da urna não está vinculado a seção";
 			String json = g.toJson(notFound);
 			renderJSON(json);
 		}
 		System.out.println(ipUrna2.ipUrna);
+		session.put("ipUrnaAtual", ipUrna2.id);
 		String json = g.toJson(ipUrna2);
 		renderJSON(json);
 	}

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -18,6 +19,7 @@ public class UrnaTempoVotacao extends Model{
 	public List<TempoVoto> tempoPorVoto;
 	
 	@OneToOne
+	@JoinColumn(name="ipUrna")
 	public IpUrna ipUrnaVotacao;
 
 }
