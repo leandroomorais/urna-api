@@ -332,7 +332,7 @@ public class UrnaEletronica extends Controller{
 					//urnaTempoVotacao = new UrnaTempoVotacao();
 					ok();
 				}else {
-					System.out.println("Secao já está vingulada e o ipterminal");
+					System.out.println("Secao já está vinculada e o ipterminal");
 					notFound();
 				}
 			}else {
