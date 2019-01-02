@@ -21,6 +21,7 @@ import models.Status;
 import models.TempoVoto;
 import models.UrnaTempoVotacao;
 import models.Votacao;
+import models.VotosCancelados;
 import play.libs.WS;
 import play.libs.WS.HttpResponse;
 import play.mvc.Controller;
@@ -200,6 +201,14 @@ public class UrnaEletronica extends Controller{
 				cancelarVotacao2.save();
 				ok();
 			}
+			IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrnaAtual).first();
+			//long u =  ipurna.id;
+			//UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
+			VotosCancelados votos = new VotosCancelados();
+			votos.data = new Date();
+			votos.ipUrnaVotCancel = ipurna;
+			votos.save();
+			
 		}else {
 			long id2 = 1;
 			Status status = Status.findById(id2);
@@ -298,9 +307,11 @@ public class UrnaEletronica extends Controller{
 					IpTerminal ipTerminal2 = new IpTerminal();
 					
 					IpUrna ipUrna2 = new IpUrna();
-					System.out.println("ip atual q nao da certo"+ipUrnaAtual);
+					//System.out.println("ip atual q nao da certo"+ipUrnaAtual);
 					ipUrna2.ipUrna = ipUrnaAtual;
-					System.out.println("ip atual q nao da certo2"+ipUrnaAtual);
+					ipUrna2.qtd_votosValidos = 0;
+					ipUrna2.qtd_votosCancelados = 0;
+					//System.out.println("ip atual q nao da certo2"+ipUrnaAtual);
 					ipUrna2.save();
 					
 					ipTerminal2.ip = ipTerminal;
