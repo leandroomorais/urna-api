@@ -3,13 +3,12 @@ package models;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 import com.google.gson.annotations.Expose;
 
-import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
 
 @Entity
