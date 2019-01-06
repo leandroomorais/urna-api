@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
 import models.CancelarVotacao;
 import models.Candidato;
@@ -126,24 +127,32 @@ public class UrnaEletronica extends Controller{
 	
 	public static void emitirBoletim(String ipUrna) {
 		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
-		List<Votacao> votacaos = Votacao.find("id_ipurna =?", ipUrna2.id).fetch();
-		long countValidos = Votacao.count("votoValido =?", (long)1);
-		long countBranco = Votacao.count("votoBranco =?", (long)1);
-		long countNulo = Votacao.count("votoNulo =?", (long)1);
-		List<Votacao> list = new ArrayList<>();
-		for(Votacao votacao : votacaos) {
-			if((!votacao.candidatos.isEmpty())) {
-				votacao.votoValido = countValidos;
-				votacao.votoBranco = countBranco;
-				votacao.votoNulo = countNulo;
-				list.add(votacao);
+		List<Candidato> list = new ArrayList<>();
+		if(ipUrna2 == null) {
+			Status status = new Status();
+			status.status = "Não existe votos para esse IP";
+			String json = g.toJson(status);
+			renderJSON(json);
+		}else {
+			List<Votacao> votacaos = Votacao.find("id_ipurna =?", ipUrna2.id).fetch();
+			long countValidos = Votacao.count("votoValido =?", (long)1);
+			long countBranco = Votacao.count("votoBranco =?", (long)1);
+			long countNulo = Votacao.count("votoNulo =?", (long)1);
+			Votacao votacao = new Votacao();
+			votacao.votoValido = countValidos;
+			votacao.votoBranco = countBranco;
+			votacao.votoNulo = countNulo;
+			for(Votacao votacao2 : votacaos) {
+				if((!votacao2.candidatos.isEmpty())) {
+					list.addAll(votacao2.candidatos);
+				}
 			}
+			votacao.candidatos = list;
+			String json2 = g.toJson(votacao);
+			renderJSON(json2);
+			
 		}
-		if(votacaos.isEmpty() || votacaos == null) {
-			renderJSON(new Status().status="Não existe votos para esse IP");
-		}
-		String json = g.toJson(list);
-		renderJSON(json);
+		
 	}
 	
 	public static void setTerminal(String status) {
@@ -287,7 +296,6 @@ public class UrnaEletronica extends Controller{
 		if(existIpUrna(ipUrna)) {
 			System.out.println("Entrou na condicao");
 			ipUrnaAtual = ipUrna;
-			
 			recebeuIp = true;
 			ok();
 		}else {

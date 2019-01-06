@@ -9,7 +9,7 @@ GET 	/get-terminal							UrnaEletronica.getTerminal
 POST 	/api/terminal							UrnaEletronica.setTerminal
 POST	/api/finaliza-votacao					UrnaEletronica.finalizarVotacao
 POST 	/api/cancela-votacao					UrnaEletronica.cancelharVotacao
-GET		/api/boletim						    UrnaEletronica.emitirBoletim
+GET		/api/boletim/{ipUrna}						    UrnaEletronica.emitirBoletim
 POST	/api/secao      						UrnaEletronica.enviarSecao
 GET		/cancela-votacao						UrnaEletronica.getCancelarVotacao
 GET		/votacao-finalizada					    UrnaEletronica.getFinalizadaVotacao

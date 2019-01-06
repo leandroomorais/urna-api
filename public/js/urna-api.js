@@ -34,3 +34,9 @@ function servicoSecao(){
 	$('#resultado4').html(JSON.stringify(result4));	
 }
 
+function servicoBoletim(){
+	$.getJSON("https://urna-api.herokuapp.com/api/boletim/"+$("#ipUrna").val()).done(function(data){
+		$("#resultadoIPUrna").text(JSON.stringify(data));
+	});
+}
+
