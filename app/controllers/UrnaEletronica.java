@@ -1,4 +1,4 @@
-﻿package controllers;
+package controllers;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -152,8 +152,6 @@ public class UrnaEletronica extends Controller{
 				System.out.println("ok");
 				TempoVoto tempovoto = new TempoVoto();
 				tempovoto.inicioVoto = new Date();
-				System.out.println("ip atual q nao da certo3"+ipUrnaAtual);
-				System.out.println("ipppppp "+session.get("ipUrnaAtual"));
 				IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrnaAtual).first();
 				long u =  ipurna.id;
 				UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
