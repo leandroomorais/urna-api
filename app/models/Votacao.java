@@ -22,6 +22,10 @@ public class Votacao extends Model{
 	 @Expose
 	public long votoValido;
 
+    	@ManyToOne
+	@JoinColumn(name="id_ipUrna")
+	public IpUrna ipUrna;
+
     @Expose
     @ManyToMany(mappedBy="votoValidos")
 	public List<Candidato> candidatos;

@@ -1,4 +1,4 @@
-package controllers;
+﻿package controllers;
 
  
 
@@ -44,6 +44,8 @@ public class UrnaEletronica extends Controller{
 
 	public static void enviarVoto(int numCandidato, int idCargo, String nome, String ipUrna, String voto){
 		Votacao votacao = new Votacao();
+		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
+		votacao.ipUrna = ipUrna2;
 		if(voto.equals("Branco")) {
 			votacao.votoBranco = 1;
 			votoBranco = true;
@@ -124,8 +126,9 @@ public class UrnaEletronica extends Controller{
 		return null;
 	}
 	
-	public static void emitirBoletim() {
-		List<Votacao> votacaos = Votacao.findAll();
+	public static void emitirBoletim(String ipUrna) {
+		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
+		List<Votacao> votacaos = Votacao.find("id_ipurna =?", ipUrna2.id).fetch();
 		long countValidos = Votacao.count("votoValido =?", (long)1);
 		long countBranco = Votacao.count("votoBranco =?", (long)1);
 		long countNulo = Votacao.count("votoNulo =?", (long)1);
@@ -137,6 +140,9 @@ public class UrnaEletronica extends Controller{
 				votacao.votoNulo = countNulo;
 				list.add(votacao);
 			}
+		}
+		if(votacaos.isEmpty() || votacaos == null) {
+			renderJSON(new Status().status="Não existe votos para esse IP");
 		}
 		String json = g.toJson(list);
 		renderJSON(json);
