@@ -15,6 +15,7 @@ import models.Candidato;
 import models.FinalizarVotacao;
 import models.IpTerminal;
 import models.IpUrna;
+import models.IpUrnaCache;
 import models.Secao;
 import models.Status;
 import models.TempoVoto;
@@ -41,7 +42,7 @@ public class UrnaEletronica extends Controller{
 		render();
 	}
 
-	public static void enviarVoto(int numCandidato, int idCargo, String nome, String ipUrna, String voto){
+	public static void enviarVoto(int numCandidato, int idCargo, String nome, String ipUrna, String voto, String tipo){
 		Votacao votacao = new Votacao();
 		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
 		votacao.ipUrna = ipUrna2;
@@ -49,11 +50,20 @@ public class UrnaEletronica extends Controller{
 			votacao.votoBranco = 1;
 			votoBranco = true;
 			votacao.save();
+		}else if(tipo.equals("votosCancelados")) {
+			System.out.println("ENTROU AQUI!!!!");
+			VotosCancelados votos = new VotosCancelados();
+			votos.data = new Date();
+			votos.ipUrnaVotCancel = ipUrna2;
+			votos.save();
+			votacao.votoNulo = 1;
+			votoNulo = true;
+			votacao.save();
 		}else if(voto.equals("Nulo")) {
 			votacao.votoNulo = 1;
 			votoNulo = true;
 			votacao.save();
-		}else {
+		}else if(voto.equals("Valido")){
 			votoValido = true;
 			votacao.votoValido = 1;
 			votacao.save();
@@ -158,21 +168,16 @@ public class UrnaEletronica extends Controller{
 	public static void setTerminal(String status) {
 		if(status.equals("liberada") || status.equals("bloqueada")) {
 			if(status.equals("liberada")){
-				System.out.println("ok");
 				TempoVoto tempovoto = new TempoVoto();
 				tempovoto.inicioVoto = new Date();
-				IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrnaAtual).first();
+				IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrnaAtual((long)1).ipUrnaCache).first();
 				long u =  ipurna.id;
 				UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
-				if(urna != null){
-					System.out.println("é nullo");
-				}
 				tempovoto.tempoVotacaoGeral = urna;
 				tempovoto.save();
 				idTempoVoto = tempovoto.id;
 			}
 			if(status.equals("bloqueada")){
-				System.out.println("ok");
 				TempoVoto tempovoto = TempoVoto.findById(idTempoVoto);
 				tempovoto.fimVoto = new Date();
 				tempovoto.save();
@@ -194,31 +199,32 @@ public class UrnaEletronica extends Controller{
 		}
 	}
 	
-	public static void cancelharVotacao(boolean cancelharVotacao) {
-		if(cancelharVotacao) {
+	private static IpUrnaCache ipUrnaAtual(long id) {
+		IpUrnaCache cache = IpUrnaCache.findById(id);
+		return cache;
+	}
+	
+	public static void cancelarVotacao(boolean cancelarVotacao) {
+		if(cancelarVotacao) {
 			long id = 1;
 			Status status = Status.findById(id);
 			status.status = "cancelou";
 			status.save();
 			if(isEmptyCancelarVotacao()) {
-				CancelarVotacao cancelarVotacao = new CancelarVotacao();
-				cancelarVotacao.status = cancelharVotacao;
-				cancelarVotacao.save();
+				IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrnaAtual(1).ipUrnaCache).first();
+				CancelarVotacao cancelarVotacao2 = new CancelarVotacao();
+				cancelarVotacao2.status = cancelarVotacao;
+				cancelarVotacao2.save();
+				//long u =  ipurna.id;
+				//UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
 				ok();
 			}else {
 				long id2 = 1;
 				CancelarVotacao cancelarVotacao2 = CancelarVotacao.findById(id2);
-				cancelarVotacao2.status = cancelharVotacao;
+				cancelarVotacao2.status = cancelarVotacao;
 				cancelarVotacao2.save();
 				ok();
 			}
-			IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrnaAtual).first();
-			//long u =  ipurna.id;
-			//UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
-			VotosCancelados votos = new VotosCancelados();
-			votos.data = new Date();
-			votos.ipUrnaVotCancel = ipurna;
-			votos.save();
 			
 		}else {
 			long id2 = 1;
@@ -226,14 +232,14 @@ public class UrnaEletronica extends Controller{
 			status.status = "bloqueada";
 			status.save();
 			if(isEmptyCancelarVotacao()) {
-				CancelarVotacao cancelarVotacao = new CancelarVotacao();
-				cancelarVotacao.status = cancelharVotacao;
-				cancelarVotacao.save();
+				CancelarVotacao cancelarVotacao2 = new CancelarVotacao();
+				cancelarVotacao2.status = cancelarVotacao;
+				cancelarVotacao2.save();
 				ok();
 			}else {
 				long id = 1;
 				CancelarVotacao cancelarVotacao2 = CancelarVotacao.findById(id);
-				cancelarVotacao2.status = cancelharVotacao;
+				cancelarVotacao2.status = cancelarVotacao;
 				cancelarVotacao2.save();
 				ok();
 			}
@@ -294,12 +300,19 @@ public class UrnaEletronica extends Controller{
 	
 	public static void receberIpUrna(String ipUrna) {
 		if(existIpUrna(ipUrna)) {
-			System.out.println("Entrou na condicao");
 			ipUrnaAtual = ipUrna;
+			IpUrnaCache cache = IpUrnaCache.findById((long)1);
+			if(cache == null) {
+				IpUrnaCache cache2 = new IpUrnaCache();
+				cache2.ipUrnaCache = ipUrna;
+				cache2.save();
+			}else {
+				cache.ipUrnaCache = ipUrna;
+				cache.save();
+			}
 			recebeuIp = true;
 			ok();
 		}else {
-			System.out.println("Entrou no notFround");
 			notFound();
 		}
 		
@@ -311,17 +324,14 @@ public class UrnaEletronica extends Controller{
 		try {
 			System.out.println("Entrou na funcao enviarSecao");
 			if(recebeuIp) {
-				System.out.println("Recebeu ip");
 				if(verificarSecao(idSecao, ipTerminal)) {
 					recebeuIp = false;
 					IpTerminal ipTerminal2 = new IpTerminal();
 					
 					IpUrna ipUrna2 = new IpUrna();
-					//System.out.println("ip atual q nao da certo"+ipUrnaAtual);
 					ipUrna2.ipUrna = ipUrnaAtual;
 					ipUrna2.qtd_votosValidos = 0;
 					ipUrna2.qtd_votosCancelados = 0;
-					//System.out.println("ip atual q nao da certo2"+ipUrnaAtual);
 					ipUrna2.save();
 					
 					ipTerminal2.ip = ipTerminal;
@@ -343,11 +353,11 @@ public class UrnaEletronica extends Controller{
 					ok();
 				}else {
 					System.out.println("Secao já está vinculada e o ipterminal");
-					notFound();
+					notFound("Secao já está vinculada e o ipterminal");
 				}
 			}else {
 				System.out.println("A Urna não enviou o ip");
-				notFound();
+				notFound("A Urna não enviou o ip");
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
