@@ -300,6 +300,7 @@ public class UrnaEletronica extends Controller{
 	
 	public static void receberIpUrna(String ipUrna) {
 		if(existIpUrna(ipUrna)) {
+			System.out.println(ipUrnaAtual);
 			ipUrnaAtual = ipUrna;
 			IpUrnaCache cache = IpUrnaCache.findById((long)1);
 			if(cache == null) {
