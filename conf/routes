@@ -1,0 +1,27 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET		/										UrnaEletronica.index
+POST	/voto									UrnaEletronica.enviarVoto
+GET		/listIpUrna								UrnaEletronica.listIpUrna
+GET 	/get-terminal							UrnaEletronica.getTerminal
+POST 	/api/terminal							UrnaEletronica.setTerminal
+POST	/api/finaliza-votacao					UrnaEletronica.finalizarVotacao
+POST 	/api/cancela-votacao					UrnaEletronica.cancelarVotacao
+GET		/api/boletim/{ipUrna}						    UrnaEletronica.emitirBoletim
+POST	/api/secao      						UrnaEletronica.enviarSecao
+GET		/cancela-votacao						UrnaEletronica.getCancelarVotacao
+GET		/votacao-finalizada					    UrnaEletronica.getFinalizadaVotacao
+GET		/getSecao/{ipUrna}						UrnaEletronica.getSecao
+POST	/receberIpUrna							UrnaEletronica.receberIpUrna
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Map static resources from the /app/public folder to the /public path
+GET     /public/                                staticDir:public
+
+# Catch all
+*       /{controller}/{action}                  {controller}.{action}
