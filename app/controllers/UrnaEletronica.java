@@ -315,15 +315,9 @@ public class UrnaEletronica extends Controller{
 	public static void receberIpUrna(String ipUrna) {
 		if(existIpUrna(ipUrna)) {
 			ipUrnaAtual = ipUrna;
-			IpUrnaCache cache = IpUrnaCache.findById((long)1);
-			if(cache == null) {
-				IpUrnaCache cache2 = new IpUrnaCache();
-				cache2.ipUrnaCache = ipUrna;
-				cache2.save();
-			}else {
-				cache.ipUrnaCache = ipUrna;
-				cache.save();
-			}
+			IpUrnaCache cache2 = new IpUrnaCache();
+			cache2.ipUrnaCache = ipUrna;
+			cache2.save();
 			recebeuIp = true;
 			ok();
 			System.out.println("OK");
