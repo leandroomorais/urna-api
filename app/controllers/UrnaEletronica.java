@@ -42,20 +42,6 @@ public class UrnaEletronica extends Controller{
 		render();
 	}
 	
-	
-	public static void listIpUrna() {
-		List<IpUrna> urnas = IpUrna.findAll();
-		if(urnas.isEmpty()) {
-			Status status = new Status();
-			status.status = "Não existe ipUrnas";
-			String json = g.toJson(status);
-			renderJSON(json);
-		}else {
-			String json = g.toJson(urnas);
-			renderJSON(json);
-		}
-	}
-
 	public static void enviarVoto(int numCandidato, int idCargo, String nome, String ipUrna, String voto, String tipo){
 		Votacao votacao = new Votacao();
 		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
@@ -65,7 +51,6 @@ public class UrnaEletronica extends Controller{
 			votoBranco = true;
 			votacao.save();
 		}else if(tipo.equals("votosCancelados")) {
-			System.out.println("ENTROU AQUI!!!!");
 			VotosCancelados votos = new VotosCancelados();
 			votos.data = new Date();
 			votos.ipUrnaVotCancel = ipUrna2;
@@ -179,12 +164,13 @@ public class UrnaEletronica extends Controller{
 		
 	}
 	
-	public static void setTerminal(String status) {
-		if(status.equals("liberada") || status.equals("bloqueada")) {
+	public static void setTerminal(String status, String ipUrna) {
+		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
+		if((status.equals("liberada") || status.equals("bloqueada")) && ipUrna2 != null) {
 			if(status.equals("liberada")){
 				TempoVoto tempovoto = new TempoVoto();
 				tempovoto.inicioVoto = new Date();
-				IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrnaAtual((long)1).ipUrnaCache).first();
+				IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrna2.ipUrna).first();
 				long u =  ipurna.id;
 				UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
 				tempovoto.tempoVotacaoGeral = urna;
@@ -196,111 +182,71 @@ public class UrnaEletronica extends Controller{
 				tempovoto.fimVoto = new Date();
 				tempovoto.save();
 			}
-			if(isEmptyStatus()) {
-				Status status3 = new Status();
-				status3.status = status;
-				status3.save();
-				ok();
-			}else {
-				long id = 1;
-				Status status2 = Status.findById(id);
-				status2.status = status;
-				status2.save();
-				ok();
-			}
+			Status status3 = new Status();
+			status3.status = status;
+			status3.ipUrna = ipUrna2;
+			status3.save();
+			ok();
 		}else {
 			notFound();
 		}
 	}
 	
-	private static IpUrnaCache ipUrnaAtual(long id) {
-		IpUrnaCache cache = IpUrnaCache.findById(id);
-		return cache;
-	}
-	
-	public static void cancelarVotacao(boolean cancelarVotacao) {
-		if(cancelarVotacao) {
-			long id = 1;
-			Status status = Status.findById(id);
+	public static void cancelarVotacao(boolean cancelarVotacao, String ipUrna) {
+		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
+		if(cancelarVotacao && ipUrna2 != null) {
+			Status status = Status.find("id_ipUrna=?", ipUrna2.id).first();
 			status.status = "cancelou";
 			status.save();
-			if(isEmptyCancelarVotacao()) {
-				IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrnaAtual(1).ipUrnaCache).first();
-				CancelarVotacao cancelarVotacao2 = new CancelarVotacao();
-				cancelarVotacao2.status = cancelarVotacao;
-				cancelarVotacao2.save();
-				//long u =  ipurna.id;
-				//UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
-				ok();
-			}else {
-				long id2 = 1;
-				CancelarVotacao cancelarVotacao2 = CancelarVotacao.findById(id2);
-				cancelarVotacao2.status = cancelarVotacao;
-				cancelarVotacao2.save();
-				ok();
-			}
-			
+			IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrna2.ipUrna).first();
+			CancelarVotacao cancelarVotacao2 = new CancelarVotacao();
+			cancelarVotacao2.status = cancelarVotacao;
+			cancelarVotacao2.save();
+			//long u =  ipurna.id;
+			//UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
+			ok();
 		}else {
-			long id2 = 1;
-			Status status = Status.findById(id2);
+			Status status = Status.find("id_ipUrna=?", ipUrna2.id).first();
 			status.status = "bloqueada";
 			status.save();
-			if(isEmptyCancelarVotacao()) {
-				CancelarVotacao cancelarVotacao2 = new CancelarVotacao();
-				cancelarVotacao2.status = cancelarVotacao;
-				cancelarVotacao2.save();
-				ok();
-			}else {
-				long id = 1;
-				CancelarVotacao cancelarVotacao2 = CancelarVotacao.findById(id);
-				cancelarVotacao2.status = cancelarVotacao;
-				cancelarVotacao2.save();
-				ok();
-			}
+			CancelarVotacao cancelarVotacao2 = new CancelarVotacao();
+			cancelarVotacao2.status = cancelarVotacao;
+			cancelarVotacao2.save();
+			ok();
 		}
 	}
 	
-	public static void finalizarVotacao(boolean finalizar) {
-		if(finalizar) {
+	public static void finalizarVotacao(boolean finalizar, String ipUrna, String ipTerminal) {
+		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
+		IpTerminal ipTerminal2 = IpTerminal.find("ip=?", ipTerminal).first();
+		if((finalizar == true) && (ipUrna2 != null) && (ipTerminal2 != null)) {
 			long id = 1;
-			Status status = Status.findById(id);
+			Status status = Status.find("id_ipUrna=?", ipUrna2.id).first();
 			status.status = "finalizou";
 			status.save();
-			if(isEmptyFinalizadaVotacao()) {
-				FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
-				finalizarVotacao.status = finalizar;
-				finalizarVotacao.save();
-				ok();
-			}else {
-				long id2 = 1;
-				FinalizarVotacao finalizarVotacao = FinalizarVotacao.findById(id2);
-				finalizarVotacao.status = finalizar;
-				finalizarVotacao.save();
-				ok();
-			}
-			
-			//IpUrna ipurna = IpUrna.find("ipUrna", ipUrnaAtual).first();
+			FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
+			finalizarVotacao.status = finalizar;
+			finalizarVotacao.save();
 			UrnaTempoVotacao urna = UrnaTempoVotacao.findById(idTempoVotoGeral);
 			urna.fim = new Date();
 			urna.save();
+			Secao secao = Secao.find("id_terminal=? and id_ip_urna=?", ipTerminal2.id, ipUrna2.id).first();
+			secao.delete();
+			IpTerminal ipTerminal3 = IpTerminal.findById(ipTerminal2.id);
+			ipTerminal3.delete();
+			ipUrna2.delete();
+			ok();
+			//IpUrna ipurna = IpUrna.find("ipUrna", ipUrnaAtual).first();
 			//urnaTempoVotacao = new UrnaTempoVotacao();
 		}else {
 			long id = 1;
 			Status status = Status.findById(id);
 			status.status = "bloqueada";
 			status.save();
-			if(isEmptyFinalizadaVotacao()) {
-				FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
-				finalizarVotacao.status = finalizar;
-				finalizarVotacao.save();
-				ok();
-			}else {
-				long id2 = 1;
-				FinalizarVotacao finalizarVotacao = FinalizarVotacao.findById(id2);
-				finalizarVotacao.status = finalizar;
-				finalizarVotacao.save();
-				ok();
-			}
+			FinalizarVotacao finalizarVotacao = new FinalizarVotacao();
+			finalizarVotacao.status = finalizar;
+			finalizarVotacao.save();
+			notFound();
 		}
 	}
 	
@@ -319,8 +265,8 @@ public class UrnaEletronica extends Controller{
 			cache2.ipUrnaCache = ipUrna;
 			cache2.save();
 			recebeuIp = true;
-			ok();
 			System.out.println("OK");
+			ok();
 		}else {
 			System.out.println("ERRO");
 			notFound();
@@ -361,8 +307,8 @@ public class UrnaEletronica extends Controller{
 					//urnaTempoVotacao = new UrnaTempoVotacao();
 					ok();
 				}else {
-					System.out.println("Secao já está vinculada e o ipterminal");
-					notFound("Secao já está vinculada e o ipterminal");
+					System.out.println("Secao já está vinculada e o terminal");
+					notFound("Secao já está vinculada e o terminal");
 				}
 			/*}else {
 				System.out.println("A Urna não enviou o ip");
@@ -381,8 +327,6 @@ public class UrnaEletronica extends Controller{
 			String json = g.toJson(notFound);
 			renderJSON(json);
 		}
-		System.out.println(ipUrna2.ipUrna);
-		session.put("ipUrnaAtual", ipUrna2.id);
 		String json = g.toJson(ipUrna2);
 		renderJSON(json);
 	}
@@ -396,49 +340,67 @@ public class UrnaEletronica extends Controller{
 		return false;
 	}
 	
-	private static boolean isEmptyStatus() {
-		List<Status> status = Status.findAll();
-		if(status.isEmpty()) {
-			return true;
+	public static void getCancelarVotacao(String ipUrna) {
+		IpUrna ipUrna2 = IpUrna.find("ipUrna =?",ipUrna).first();
+		if(ipUrna2 != null) {
+			CancelarVotacao cancelarVotacao = CancelarVotacao.find("id_ipUrna=?", ipUrna2.id).first();
+			if(cancelarVotacao != null) {
+				String json = g.toJson(cancelarVotacao);
+				renderJSON(json);
+			}else {
+				Status status = new Status();
+				status.status = "ERROR";
+				String json = g.toJson(status);
+				renderJSON(json);
+			}
+		}else {
+			Status status = new Status();
+			status.status = "ERROR";
+			String json = g.toJson(status);
+			renderJSON(json);
 		}
-		return false;
 	}
 	
-	private static boolean isEmptyFinalizadaVotacao() {
-		List<FinalizarVotacao> list = FinalizarVotacao.findAll();
-		if(list.isEmpty()) {
-			return true;
+	public static void getFinalizadaVotacao(String ipUrna) {
+		IpUrna ipUrna2 = IpUrna.find("ipUrna =?",ipUrna).first();
+		if(ipUrna2 != null) {
+			FinalizarVotacao finalizarVotacao = FinalizarVotacao.find("id_ipUrna=?", ipUrna2.id).first();
+			if(finalizarVotacao != null) {
+				String json = g.toJson(finalizarVotacao);
+				renderJSON(json);
+			}else {
+				Status status = new Status();
+				status.status = "ERROR";
+				String json = g.toJson(status);
+				renderJSON(json);
+			}
+		}else {
+			Status status = new Status();
+			status.status = "ERROR";
+			String json = g.toJson(status);
+			renderJSON(json);
 		}
-		return false;
 	}
 	
-	private static boolean isEmptyCancelarVotacao() {
-		List<CancelarVotacao> list = CancelarVotacao.findAll();
-		if(list.isEmpty()) {
-			return true;
+	public static void getTerminal(String ipUrna) {
+		IpUrna ipUrna2 = IpUrna.find("ipUrna =?",ipUrna).first();
+		if(ipUrna2 != null) {
+			Status status = Status.find("id_ipUrna=?", ipUrna2.id).first();
+			if(status != null) {
+				String json = g.toJson(status);
+				renderJSON(json);
+			}else {
+				Status status2 = new Status();
+				status2.status = "ERROR";
+				String json = g.toJson(status2);
+				renderJSON(json);
+			}
+		}else {
+			Status status = new Status();
+			status.status = "ERROR";
+			String json = g.toJson(status);
+			renderJSON(json);
 		}
-		return false;
-	}
-	
-	public static void getCancelarVotacao() {
-		long id = 1;
-		CancelarVotacao cancelarVotacao = CancelarVotacao.findById(id);
-		String json = g.toJson(cancelarVotacao);
-		renderJSON(json);
-	}
-	
-	public static void getFinalizadaVotacao() {
-		long id = 1;
-		FinalizarVotacao finalizarVotacao = FinalizarVotacao.findById(id);
-		String json = g.toJson(finalizarVotacao);
-		renderJSON(json);
-	}
-	
-	public static void getTerminal() {
-		long id = 1;
-		Status status = Status.findById(id);
-		String json = g.toJson(status);
-		renderJSON(json);
 	}
 	
 }

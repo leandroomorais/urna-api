@@ -21,9 +21,9 @@ public class Candidato extends  Model{
 	public String nome;
 	@Expose
 	public int numero;
-	
 	@Expose
 	public int totalVotos;
+	
 	@ManyToMany
 	@JoinTable(name="votos_ampurados")
 	public List<Votacao> votoValidos;

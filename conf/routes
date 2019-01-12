@@ -5,15 +5,14 @@
 # Home page
 GET		/										UrnaEletronica.index
 POST	/voto									UrnaEletronica.enviarVoto
-GET		/listIpUrna								UrnaEletronica.listIpUrna
-GET 	/get-terminal							UrnaEletronica.getTerminal
+GET 	/get-terminal/{ipUrna}					UrnaEletronica.getTerminal
 POST 	/api/terminal							UrnaEletronica.setTerminal
 POST	/api/finaliza-votacao					UrnaEletronica.finalizarVotacao
 POST 	/api/cancela-votacao					UrnaEletronica.cancelarVotacao
-GET		/api/boletim/{ipUrna}						    UrnaEletronica.emitirBoletim
+GET		/api/boletim/{ipUrna}				    UrnaEletronica.emitirBoletim
 POST	/api/secao      						UrnaEletronica.enviarSecao
-GET		/cancela-votacao						UrnaEletronica.getCancelarVotacao
-GET		/votacao-finalizada					    UrnaEletronica.getFinalizadaVotacao
+GET		/cancela-votacao/{ipUrna}				UrnaEletronica.getCancelarVotacao
+GET		/votacao-finalizada/{ipUrna}		    UrnaEletronica.getFinalizadaVotacao
 GET		/getSecao/{ipUrna}						UrnaEletronica.getSecao
 POST	/receberIpUrna							UrnaEletronica.receberIpUrna
 
