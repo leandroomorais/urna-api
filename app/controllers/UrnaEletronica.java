@@ -32,7 +32,7 @@ public class UrnaEletronica extends Controller{
 	private static boolean votoNulo = false;
 	private static boolean votoBranco = false;
 	private static String ipUrnaAtual = "";
-	private static boolean recebeuIp = false;
+	private static boolean entrouStatus = false;
 	private static long idTempoVoto = 0;
 	private static long idTempoVotoGeral = 0;
 	//private static UrnaTempoVotacao urnaTempoVotacao = new UrnaTempoVotacao();
@@ -166,7 +166,32 @@ public class UrnaEletronica extends Controller{
 	
 	public static void setTerminal(String status, String ipUrna) {
 		IpUrna ipUrna2 = IpUrna.find("ipUrna=?", ipUrna).first();
-		if((status.equals("liberada") || status.equals("bloqueada")) && ipUrna2 != null) {
+		Status status2 = Status.find("id_ipUrna=?", ipUrna2.id).first();
+		if(status2 == null) {
+			Status status3 = new Status();
+			status3.status = status;
+			status3.ipUrna = ipUrna2;
+			status3.save();
+			if((status.equals("liberada") || status.equals("bloqueada") || status.equals("pediuTempo")) && ipUrna2 != null) {
+				if(status.equals("liberada")){
+					TempoVoto tempovoto = new TempoVoto();
+					tempovoto.inicioVoto = new Date();
+					IpUrna ipurna = IpUrna.find("ipUrna=?", ipUrna2.ipUrna).first();
+					long u =  ipurna.id;
+					UrnaTempoVotacao urna = UrnaTempoVotacao.find("ipUrna=?", u).first();
+					tempovoto.tempoVotacaoGeral = urna;
+					tempovoto.save();
+					idTempoVoto = tempovoto.id;
+				}
+				if(status.equals("bloqueada")){
+					TempoVoto tempovoto = TempoVoto.findById(idTempoVoto);
+					tempovoto.fimVoto = new Date();
+					tempovoto.save();
+				}
+				System.out.println("Deu certo");
+				ok();
+			}
+		}else if((status.equals("liberada") || status.equals("bloqueada") || status.equals("pediuTempo")) && ipUrna2 != null) {
 			if(status.equals("liberada")){
 				TempoVoto tempovoto = new TempoVoto();
 				tempovoto.inicioVoto = new Date();
@@ -182,12 +207,13 @@ public class UrnaEletronica extends Controller{
 				tempovoto.fimVoto = new Date();
 				tempovoto.save();
 			}
-			Status status3 = new Status();
-			status3.status = status;
-			status3.ipUrna = ipUrna2;
-			status3.save();
+			status2.status = status;
+			status2.ipUrna = ipUrna2;
+			status2.save();
+			System.out.println("Deu certo");
 			ok();
 		}else {
+			System.out.println("Deu erro");
 			notFound();
 		}
 	}
@@ -264,7 +290,6 @@ public class UrnaEletronica extends Controller{
 			IpUrnaCache cache2 = new IpUrnaCache();
 			cache2.ipUrnaCache = ipUrna;
 			cache2.save();
-			recebeuIp = true;
 			System.out.println("OK");
 			ok();
 		}else {
