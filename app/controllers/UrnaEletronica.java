@@ -144,22 +144,28 @@ public class UrnaEletronica extends Controller{
 			renderJSON(json);
 		}else {
 			List<Votacao> votacaos = Votacao.find("id_ipurna =?", ipUrna2.id).fetch();
-			long countValidos = Votacao.count("votoValido =?", (long)1);
-			long countBranco = Votacao.count("votoBranco =?", (long)1);
-			long countNulo = Votacao.count("votoNulo =?", (long)1);
-			Votacao votacao = new Votacao();
-			votacao.votoValido = countValidos;
-			votacao.votoBranco = countBranco;
-			votacao.votoNulo = countNulo;
-			for(Votacao votacao2 : votacaos) {
-				if((!votacao2.candidatos.isEmpty())) {
-					list.addAll(votacao2.candidatos);
+			if(votacaos.isEmpty()) {
+				Status status = new Status();
+				status.status = "Não existe votos para esse IP";
+				String json = g.toJson(status);
+				renderJSON(json);
+			}else {
+				long countValidos = Votacao.count("votoValido =?", (long)1);
+				long countBranco = Votacao.count("votoBranco =?", (long)1);
+				long countNulo = Votacao.count("votoNulo =?", (long)1);
+				Votacao votacao = new Votacao();
+				votacao.votoValido = countValidos;
+				votacao.votoBranco = countBranco;
+				votacao.votoNulo = countNulo;
+				for(Votacao votacao2 : votacaos) {
+					if((!votacao2.candidatos.isEmpty())) {
+						list.addAll(votacao2.candidatos);
+					}
 				}
+				votacao.candidatos = list;
+				String json2 = g.toJson(votacao);
+				renderJSON(json2);
 			}
-			votacao.candidatos = list;
-			String json2 = g.toJson(votacao);
-			renderJSON(json2);
-			
 		}
 		
 	}
