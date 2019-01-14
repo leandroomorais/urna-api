@@ -13,10 +13,11 @@ import javax.persistence.OneToOne;
 
 import com.google.gson.annotations.Expose;
 
+import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
 
 @Entity
-public class Candidato {
+public class Candidato extends GenericModel{
 	@Expose
 	@Id
     @GeneratedValue
