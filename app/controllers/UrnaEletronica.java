@@ -304,14 +304,26 @@ public class UrnaEletronica extends Controller{
 		}
 		
 	}
-		
+	
+	public static boolean UrnaVinculadaSecao(long idSecao) {
+		HttpResponse httpResponse = WS.url("http://tse.vps.leandrorego.com/api/getUrna?idSecao="+idSecao).get();
+		httpResponse.getString();
+		if(httpResponse.getString().equals("{\r\n" + 
+				"  \"key\": \"Error\",\r\n" + 
+				"  \"value\": \"Urna já vinculada à uma Seção!\"\r\n" + 
+				"}")) {
+			return true;
+		}
+		return false;
+	}
 	
 	public static void enviarSecao(String idSecao, String ipTerminal, String ipUrna) {
 		try {
 			System.out.println("Entrou na funcao enviarSecao");
+			long idS = Long.parseLong(idSecao);
 			IpUrnaCache ipUrnaCache = IpUrnaCache.find("ipUrnaCache=?", ipUrna).first();
 			//if(recebeuIp) {
-				if(verificarSecao(idSecao, ipTerminal) && ipUrnaCache != null) {
+				if((verificarSecao(idSecao, ipTerminal) && ipUrnaCache != null) && UrnaVinculadaSecao(idS) == false) {
 					//recebeuIp = false;
 					IpTerminal ipTerminal2 = new IpTerminal();
 					
