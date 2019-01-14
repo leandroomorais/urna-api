@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -15,7 +16,11 @@ import com.google.gson.annotations.Expose;
 import play.db.jpa.Model;
 
 @Entity
-public class Candidato extends  Model{
+public class Candidato {
+	@Expose
+	@Id
+    @GeneratedValue
+    public Long id;
 	
 	@Expose
 	public String nome;
